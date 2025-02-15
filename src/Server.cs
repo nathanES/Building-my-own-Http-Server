@@ -84,9 +84,6 @@ class Program
 
             var httpResponse = HandleRequest(request);
             await SendResponse(socket, httpResponse);
-            Console.WriteLine("ShuttingDown the Socket connection...");
-            socket.Shutdown(SocketShutdown.Both);
-            Console.WriteLine("Socket connection is shut down");
         }
         catch (Exception e)
         {
@@ -94,6 +91,12 @@ class Program
         }
         finally
         {
+            if (socket.Connected)
+            {
+                Console.WriteLine("Shutting Down the Socket connection...");
+                socket.Shutdown(SocketShutdown.Both);
+                Console.WriteLine("Socket connection is shut down"); 
+            }
             Console.WriteLine("Closing the Socket connection...");
             socket.Close();
             Console.WriteLine("Socket Connection closed");
