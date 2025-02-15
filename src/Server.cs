@@ -82,7 +82,7 @@ class Program
                 $"Received request :{JsonSerializer.Serialize(request, new JsonSerializerOptions { WriteIndented = true })}");
 
 
-            var httpResponse = await HandleRequest(socket, request);
+            var httpResponse = HandleRequest(request);
             await SendResponse(socket, httpResponse);
             Console.WriteLine("ShuttingDown the Socket connection...");
             socket.Shutdown(SocketShutdown.Both);
@@ -100,7 +100,7 @@ class Program
         }
     }
 
-    static async Task<HttpResponse> HandleRequest(Socket socket, HttpRequest request)
+    static HttpResponse HandleRequest(HttpRequest request)
     {
         HttpResponse httpResponse;
         if (_requestHandlers.TryGetValue(request.RequestTarget, out var handler))
