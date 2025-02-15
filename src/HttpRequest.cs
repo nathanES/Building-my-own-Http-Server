@@ -12,6 +12,8 @@ public class HttpRequest
     
     public static HttpRequest? Parse(byte[] httpRequest, int httpRequestLength)
     {
+        if (httpRequestLength == 0)
+            return null;
         return Parse(Encoding.ASCII.GetString(httpRequest, 0, httpRequestLength));
     }
 

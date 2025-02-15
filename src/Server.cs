@@ -67,12 +67,10 @@ class Program
     {
         try
         {
-            var buffer = new byte[1024];
+            var buffer = new byte[1_024];
             var httpRequestLength = await socket.ReceiveAsync(buffer);
             Console.WriteLine($"Received {httpRequestLength} bytes");
-            if (httpRequestLength == 0)
-                return;
-
+            
             var request = HttpRequest.Parse(buffer, httpRequestLength);
             if (request == null)
             {
@@ -84,8 +82,8 @@ class Program
                 $"Received request :{JsonSerializer.Serialize(request, new JsonSerializerOptions { WriteIndented = true })}");
 
 
-            await HandleRequest(socket, request);
-
+            var httpResponse = await HandleRequest(socket, request);
+            await SendResponse(socket, httpResponse);
             Console.WriteLine("ShuttingDown the Socket connection...");
             socket.Shutdown(SocketShutdown.Both);
             Console.WriteLine("Socket connection is shut down");
@@ -102,7 +100,7 @@ class Program
         }
     }
 
-    static async Task HandleRequest(Socket socket, HttpRequest request)
+    static async Task<HttpResponse> HandleRequest(Socket socket, HttpRequest request)
     {
         HttpResponse httpResponse;
         if (_requestHandlers.TryGetValue(request.RequestTarget, out var handler))
@@ -125,9 +123,8 @@ class Program
             Console.WriteLine("RequestTarget not exists");
             httpResponse = HandleNotFound(request, "RequestTarget not exists");
         }
-
-        await SendResponse(socket, httpResponse);
-        return;
+        return httpResponse;
+       
     }
 
     private static async Task SendResponse(Socket socket, HttpResponse httpResponse)
